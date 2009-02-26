@@ -48,11 +48,7 @@ module ExceptionNotifiable
     end
 
     def exceptions_to_treat_as_404
-      exceptions = [ActiveRecord::RecordNotFound,
-                    ActionController::UnknownController,
-                    ActionController::UnknownAction]
-      exceptions << ActionController::RoutingError if ActionController.const_defined?(:RoutingError)
-      exceptions
+      rescue_responses.reject{|k,v| v != :not_found}.keys
     end
   end
 
@@ -78,7 +74,7 @@ module ExceptionNotifiable
     end
 
     def rescue_action_in_public(exception)
-      case exception
+      case exception.class.to_s
         when *self.class.exceptions_to_treat_as_404
           render_404
 
